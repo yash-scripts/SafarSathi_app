@@ -1,0 +1,26 @@
+name: safarsathi_app
+description: A travel tracking app for Kerala Tourism.
+
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+flutter:
+sdk: flutter
+cupertino_icons: ^1.0.2
+google_fonts: ^6.1.0
+font_awesome_flutter: ^10.6.0
+
+dev_dependencies:
+flutter_test:
+sdk: flutter
+flutter_lints: ^3.0.0
+
+flutter:
+uses-material-design: true
+
+
