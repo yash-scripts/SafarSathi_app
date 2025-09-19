@@ -175,8 +175,8 @@ class ScanScreen extends StatelessWidget {
                         children: [
                           Container(
                             padding: const EdgeInsets.all(8),
-                            decoration: BoxDecoration(
-                              color: const Color(0xFF20B2AA).withOpacity(0.1),
+                            decoration: const BoxDecoration(
+                              color: Color.fromRGBO(32, 178, 170, 0.1),
                               shape: BoxShape.circle,
                             ),
                             child: const Icon(
@@ -236,28 +236,21 @@ class ScanScreen extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(height: 30),
-                      Center(
+                      const Center(
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Container(
-                              padding: const EdgeInsets.all(16),
-                              decoration: BoxDecoration(
-                                color: const Color(0xFF20B2AA).withOpacity(0.1),
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: const Icon(
-                                Icons.receipt_outlined,
-                                color: Color(0xFF20B2AA),
-                                size: 40,
-                              ),
+                            Icon(
+                              Icons.receipt_outlined,
+                              color: Color(0xFF20B2AA),
+                              size: 40,
                             ),
-                            const SizedBox(height: 16),
+                            SizedBox(height: 16),
                             Text(
                               'No recent receipts',
-                              style: GoogleFonts.poppins(
+                              style: TextStyle(
                                 fontSize: 16,
-                                color: Colors.grey[600],
+                                color: Colors.grey,
                               ),
                             ),
                           ],

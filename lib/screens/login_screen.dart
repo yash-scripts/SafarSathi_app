@@ -1,10 +1,32 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'home_screen.dart';
 
-class LoginScreen extends StatelessWidget {
+class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
+
+  @override
+  State<LoginScreen> createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen> {
+  // New method to handle anonymous sign-in
+  Future<void> _signInAnonymously(BuildContext context) async {
+    try {
+      await FirebaseAuth.instance.signInAnonymously();
+      // After successful sign-in, navigate to the home screen.
+      if (!mounted) return;
+      _navigateToHome(context);
+    } catch (e) {
+      // Handle errors, e.g., show a snackbar
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to sign in: $e')),
+      );
+    }
+  }
 
   Widget _buildLoginButton(BuildContext context, {
     required IconData icon,
@@ -167,9 +189,9 @@ class LoginScreen extends StatelessWidget {
                   // Login Buttons
                   _buildLoginButton(
                     context,
-                    icon: FontAwesomeIcons.google,
-                    text: 'Continue with Google',
-                    onPressed: () => _navigateToHome(context),
+                    icon: FontAwesomeIcons.userSecret, // Changed Icon
+                    text: 'Continue as Guest', // Changed Text
+                    onPressed: () => _signInAnonymously(context), // Changed Action
                   ),
                   const SizedBox(height: 16),
                   _buildLoginButton(

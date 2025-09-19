@@ -109,7 +109,7 @@ class _TrackScreenState extends State<TrackScreen> {
                           Container(
                             padding: const EdgeInsets.all(12),
                             decoration: BoxDecoration(
-                              color: const Color(0xFF20B2AA).withOpacity(0.1),
+                              color: const Color(0xFF20B2AA).withAlpha(25), // Replaced withOpacity
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: const Icon(
@@ -148,7 +148,7 @@ class _TrackScreenState extends State<TrackScreen> {
                                 autoDetectionEnabled = value;
                               });
                             },
-                            activeColor: const Color(0xFF20B2AA),
+                            activeThumbColor: const Color(0xFF20B2AA),
                           ),
                         ],
                       ),
