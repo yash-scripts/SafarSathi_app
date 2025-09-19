@@ -13,12 +13,12 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   // New method to handle anonymous sign-in
-  Future<void> _signInAnonymously(BuildContext context) async {
+  Future<void> _signInAnonymously() async {
     try {
       await FirebaseAuth.instance.signInAnonymously();
       // After successful sign-in, navigate to the home screen.
       if (!mounted) return;
-      _navigateToHome(context);
+      _navigateToHome();
     } catch (e) {
       // Handle errors, e.g., show a snackbar
       if (!mounted) return;
@@ -28,7 +28,7 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
-  Widget _buildLoginButton(BuildContext context, {
+  Widget _buildLoginButton({
     required IconData icon,
     required String text,
     required VoidCallback onPressed,
@@ -64,7 +64,7 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  void _navigateToHome(BuildContext context) {
+  void _navigateToHome() {
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(builder: (context) => const HomeScreen()),
@@ -188,24 +188,21 @@ class _LoginScreenState extends State<LoginScreen> {
                   const SizedBox(height: 48),
                   // Login Buttons
                   _buildLoginButton(
-                    context,
                     icon: FontAwesomeIcons.userSecret, // Changed Icon
                     text: 'Continue as Guest', // Changed Text
-                    onPressed: () => _signInAnonymously(context), // Changed Action
+                    onPressed: _signInAnonymously, // Changed Action
                   ),
                   const SizedBox(height: 16),
                   _buildLoginButton(
-                    context,
                     icon: FontAwesomeIcons.apple,
                     text: 'Log in with Phone Number',
-                    onPressed: () => _navigateToHome(context),
+                    onPressed: _navigateToHome,
                   ),
                   const SizedBox(height: 16),
                   _buildLoginButton(
-                    context,
                     icon: Icons.email,
                     text: 'Log in with Email',
-                    onPressed: () => _navigateToHome(context),
+                    onPressed: _navigateToHome,
                   ),
                   const SizedBox(height: 32),
                   // Bottom Links

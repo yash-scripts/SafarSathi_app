@@ -22,7 +22,7 @@ class TripService {
   final DatabaseHelper _dbHelper = DatabaseHelper.instance;
   StreamSubscription<UserAccelerometerEvent>? _accelerometerSubscription;
   StreamSubscription<Position>? _positionSubscription;
-  StreamSubscription<ConnectivityResult>? _connectivitySubscription;
+  StreamSubscription<List<ConnectivityResult>>? _connectivitySubscription;
 
   Future<void> start() async {
     _accelerometerSubscription = userAccelerometerEventStream().listen(_onAccelerometerEvent);
@@ -96,7 +96,9 @@ class TripService {
 
   Future<void> _syncTrips() async {
     final connectivityResult = await Connectivity().checkConnectivity();
-    if (connectivityResult == ConnectivityResult.none) return;
+    if (!connectivityResult.any((result) => result != ConnectivityResult.none)) {
+      return;
+    }
 
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) return; // Don't sync if user is not logged in
@@ -127,8 +129,8 @@ class TripService {
     }
   }
 
-  void _onConnectivityChanged(ConnectivityResult result) {
-    if (result != ConnectivityResult.none) {
+  void _onConnectivityChanged(List<ConnectivityResult> result) {
+    if (result.any((r) => r != ConnectivityResult.none)) {
       _syncTrips();
     }
   }
