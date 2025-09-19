@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../services/trip_service.dart';
 
 class TrackScreen extends StatefulWidget {
   const TrackScreen({super.key});
@@ -9,7 +10,32 @@ class TrackScreen extends StatefulWidget {
 }
 
 class _TrackScreenState extends State<TrackScreen> {
+  final TripService _tripService = TripService();
   bool autoDetectionEnabled = true;
+  bool isTripStarted = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _tripService.start();
+  }
+
+  @override
+  void dispose() {
+    _tripService.dispose();
+    super.dispose();
+  }
+
+  void toggleTrip() {
+    setState(() {
+      isTripStarted = !isTripStarted;
+      if (isTripStarted) {
+        _tripService.manualStartTrip();
+      } else {
+        _tripService.manualEndTrip();
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -109,7 +135,7 @@ class _TrackScreenState extends State<TrackScreen> {
                           Container(
                             padding: const EdgeInsets.all(12),
                             decoration: BoxDecoration(
-                              color: const Color(0xFF20B2AA).withAlpha(25), // Replaced withOpacity
+                              color: const Color(0xFF20B2AA).withAlpha(25),
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: const Icon(
@@ -187,40 +213,67 @@ class _TrackScreenState extends State<TrackScreen> {
                       Center(
                         child: Column(
                           children: [
-                            Container(
-                              width: 100,
-                              height: 100,
-                              decoration: BoxDecoration(
-                                border: Border.all(
-                                  color: const Color(0xFF20B2AA),
-                                  width: 3,
-                                ),
-                                shape: BoxShape.circle,
+                            if (isTripStarted)
+                              Column(
+                                children: [
+                                  Text(
+                                    'Trip in Progress...',
+                                    style: GoogleFonts.poppins(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w600,
+                                      color: Colors.black,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Text(
+                                    'Capturing location and speed data.',
+                                    style: GoogleFonts.poppins(
+                                      fontSize: 14,
+                                      color: Colors.grey[600],
+                                    ),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ],
+                              )
+                            else
+                              Column(
+                                children: [
+                                  Container(
+                                    width: 100,
+                                    height: 100,
+                                    decoration: BoxDecoration(
+                                      border: Border.all(
+                                        color: const Color(0xFF20B2AA),
+                                        width: 3,
+                                      ),
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: const Icon(
+                                      Icons.access_time,
+                                      color: Color(0xFF20B2AA),
+                                      size: 40,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 20),
+                                  Text(
+                                    'No active trip',
+                                    style: GoogleFonts.poppins(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w600,
+                                      color: Colors.black,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Text(
+                                    'Start tracking or enable auto-detection',
+                                    style: GoogleFonts.poppins(
+                                      fontSize: 14,
+                                      color: Colors.grey[600],
+                                    ),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ],
                               ),
-                              child: const Icon(
-                                Icons.access_time,
-                                color: Color(0xFF20B2AA),
-                                size: 40,
-                              ),
-                            ),
-                            const SizedBox(height: 20),
-                            Text(
-                              'No active trip',
-                              style: GoogleFonts.poppins(
-                                fontSize: 18,
-                                fontWeight: FontWeight.w600,
-                                color: Colors.black,
-                              ),
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              'Start tracking or enable auto-detection',
-                              style: GoogleFonts.poppins(
-                                fontSize: 14,
-                                color: Colors.grey[600],
-                              ),
-                              textAlign: TextAlign.center,
-                            ),
                           ],
                         ),
                       ),
@@ -233,17 +286,17 @@ class _TrackScreenState extends State<TrackScreen> {
                   width: double.infinity,
                   height: 60,
                   decoration: BoxDecoration(
-                    color: const Color(0xFF20B2AA),
+                    color: isTripStarted ? Colors.red : const Color(0xFF20B2AA),
                     borderRadius: BorderRadius.circular(30),
                   ),
                   child: Material(
                     color: Colors.transparent,
                     child: InkWell(
                       borderRadius: BorderRadius.circular(30),
-                      onTap: () {},
+                      onTap: toggleTrip,
                       child: Center(
                         child: Text(
-                          'Track',
+                          isTripStarted ? 'Stop Trip' : 'Start Trip',
                           style: GoogleFonts.poppins(
                             fontSize: 18,
                             fontWeight: FontWeight.w600,

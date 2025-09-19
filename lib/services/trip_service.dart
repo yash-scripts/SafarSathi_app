@@ -14,6 +14,7 @@ class TripService {
   static const double _minTripDistance = 100; // meters
 
   bool _isMoving = false;
+  bool _isManualTrip = false;
   Timer? _tripEndTimer;
   DateTime? _tripStartTime;
   Position? _lastPosition;
@@ -37,12 +38,29 @@ class TripService {
   }
 
   void _onAccelerometerEvent(UserAccelerometerEvent event) {
+    if (_isManualTrip) return;
+
     final double magnitude = (event.x * event.x + event.y * event.y + event.z * event.z).abs();
     if (magnitude > _movementThreshold && !_isMoving) {
       _startTrip();
     } else if (magnitude <= _movementThreshold && _isMoving) {
       _resetTripEndTimer();
     }
+  }
+
+  Future<void> manualStartTrip() async {
+    if (_isMoving) return;
+    _isManualTrip = true;
+    _accelerometerSubscription?.pause();
+    _startTrip();
+  }
+
+  Future<void> manualEndTrip() async {
+    if (!_isMoving || !_isManualTrip) return;
+    _tripEndTimer?.cancel();
+    await _endTrip();
+    _isManualTrip = false;
+    _accelerometerSubscription?.resume();
   }
 
   void _startTrip() {

@@ -1,3 +1,6 @@
+plugins {
+    id("com.google.gms.google-services") version "4.3.10" apply false
+}
 allprojects {
     repositories {
         google()
