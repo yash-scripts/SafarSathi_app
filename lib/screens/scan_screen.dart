@@ -1,8 +1,75 @@
+import 'dart:convert';
+import 'dart:developer';
+import 'dart:io';
+
+import '../models/ocr_data_model.dart';
+import '../services/ocr_service.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:http/http.dart' as http;
+import 'package:image_picker/image_picker.dart';
 
-class ScanScreen extends StatelessWidget {
+import 'manual_entry_screen.dart';
+
+class ScanScreen extends StatefulWidget {
   const ScanScreen({super.key});
+
+  @override
+  State<ScanScreen> createState() => _ScanScreenState();
+}
+
+class _ScanScreenState extends State<ScanScreen> {
+  File? _image;
+  final picker = ImagePicker();
+  String _extractedText = 'No text extracted yet.';
+  final OcrService _ocrService = OcrService();
+
+  Future<void> _extractText() async {
+    if (_image == null) {
+      return;
+    }
+
+    final bytes = await _image!.readAsBytes();
+    String base64Image = base64Encode(bytes);
+
+    var url = Uri.parse('https://api.ocr.space/parse/image');
+    var response = await http.post(url, body: {
+      'apikey': 'K83749442688957',
+      'base64Image': 'data:image/jpg;base64,$base64Image',
+    });
+
+    if (response.statusCode == 200) {
+      var data = jsonDecode(response.body);
+      setState(() {
+        _extractedText = data['ParsedResults'][0]['ParsedText'];
+      });
+
+      // Save extracted text to Firestore
+      OcrData ocrData = OcrData(
+        extractedText: _extractedText,
+        timestamp: Timestamp.now(),
+      );
+      await _ocrService.addOcrData(ocrData);
+    } else {
+      setState(() {
+        _extractedText = 'Error: ${response.reasonPhrase}';
+      });
+    }
+  }
+
+  Future getImage() async {
+    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+
+    setState(() {
+      if (pickedFile != null) {
+        _image = File(pickedFile.path);
+        _extractText();
+      } else {
+        log('No image selected.');
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -110,7 +177,7 @@ class ScanScreen extends StatelessWidget {
                         children: [
                           Expanded(
                             child: ElevatedButton.icon(
-                              onPressed: () {},
+                              onPressed: getImage,
                               icon: const Icon(Icons.upload),
                               label: Text(
                                 'Upload Image',
@@ -132,10 +199,16 @@ class ScanScreen extends StatelessWidget {
                           const SizedBox(width: 16),
                           Expanded(
                             child: OutlinedButton.icon(
-                              onPressed: () {},
-                              icon: const Icon(Icons.camera_alt),
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => const ManualEntryScreen()),
+                                );
+                              },
+                              icon: const Icon(Icons.edit),
                               label: Text(
-                                'Take Photo',
+                                'Manual Entry',
                                 style: GoogleFonts.poppins(
                                   fontSize: 16,
                                   fontWeight: FontWeight.w500,
@@ -155,6 +228,19 @@ class ScanScreen extends StatelessWidget {
                             ),
                           ),
                         ],
+                      ),
+                      const SizedBox(height: 20),
+                      if (_image != null)
+                        Image.file(_image!)
+                      else
+                        const Text('No image selected.'),
+                      const SizedBox(height: 20),
+                      Text(
+                        _extractedText,
+                        style: GoogleFonts.poppins(
+                          fontSize: 16,
+                          color: Colors.black,
+                        ),
                       ),
                     ],
                   ),

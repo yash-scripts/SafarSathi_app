@@ -14,13 +14,19 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   int _currentIndex = 0;
-  final List<Widget> _pages = [
-    const HomePage(),
-    const TrackScreen(),
-    const ScanScreen(),
-    const JournalScreen(),
-    const SettingsScreen(),
-  ];
+  late final List<Widget> _pages;
+
+  @override
+  void initState() {
+    super.initState();
+    _pages = [
+      HomePage(onNavigate: (index) => setState(() => _currentIndex = index)),
+      const TrackScreen(),
+      const ScanScreen(),
+      const JournalScreen(),
+      const SettingsScreen(),
+    ];
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -65,38 +71,44 @@ class _HomeScreenState extends State<HomeScreen> {
 }
 
 class HomePage extends StatelessWidget {
-  const HomePage({super.key});
+  final void Function(int) onNavigate;
+  const HomePage({super.key, required this.onNavigate});
 
   Widget _buildStatusCard({
     required IconData icon,
     required String title,
     required Color color,
+    VoidCallback? onTap,
   }) {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: color,
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            icon,
-            color: Colors.white,
-            size: 40,
-          ),
-          const SizedBox(height: 12),
-          Text(
-            title,
-            style: GoogleFonts.poppins(
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(16),
+      child: Container(
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: color,
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              icon,
               color: Colors.white,
-              fontSize: 14,
-              fontWeight: FontWeight.w500,
+              size: 40,
             ),
-            textAlign: TextAlign.center,
-          ),
-        ],
+            const SizedBox(height: 12),
+            Text(
+              title,
+              style: GoogleFonts.poppins(
+                color: Colors.white,
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -225,23 +237,24 @@ class HomePage extends StatelessWidget {
                       childAspectRatio: 1.2,
                       children: [
                         _buildStatusCard(
-                          icon: Icons.location_on,
-                          title: 'Travel Ninary',
+                          icon: Icons.sos,
+                          title: 'SOS',
                           color: const Color(0xFF20B2AA),
                         ),
                         _buildStatusCard(
-                          icon: Icons.list_alt,
-                          title: 'Total Entries',
+                          icon: Icons.explore,
+                          title: 'Travel Itinerary',
                           color: const Color(0xFF20B2AA),
                         ),
                         _buildStatusCard(
-                          icon: Icons.book,
-                          title: 'Total Entries',
+                          icon: Icons.track_changes,
+                          title: 'Trip Tracking',
                           color: const Color(0xFF20B2AA),
+                          onTap: () => onNavigate(1),
                         ),
                         _buildStatusCard(
-                          icon: Icons.camera_alt,
-                          title: 'Tecalims',
+                          icon: Icons.auto_awesome,
+                          title: 'AI Journal',
                           color: const Color(0xFF20B2AA),
                         ),
                       ],
