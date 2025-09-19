@@ -4,6 +4,8 @@ import 'track_screen.dart';
 import 'journal_screen.dart';
 import 'scan_screen.dart';
 import 'settings_screen.dart';
+import '../services/sample_data_service.dart';
+import 'coming_soon_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -84,7 +86,7 @@ class HomePage extends StatelessWidget {
       onTap: onTap,
       borderRadius: BorderRadius.circular(16),
       child: Container(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(10),
         decoration: BoxDecoration(
           color: color,
           borderRadius: BorderRadius.circular(16),
@@ -98,14 +100,16 @@ class HomePage extends StatelessWidget {
               size: 40,
             ),
             const SizedBox(height: 12),
-            Text(
-              title,
-              style: GoogleFonts.poppins(
-                color: Colors.white,
-                fontSize: 14,
-                fontWeight: FontWeight.w500,
+            FittedBox(
+              child: Text(
+                title,
+                style: GoogleFonts.poppins(
+                  color: Colors.white,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                ),
+                textAlign: TextAlign.center,
               ),
-              textAlign: TextAlign.center,
             ),
           ],
         ),
@@ -210,17 +214,23 @@ class HomePage extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      'Current Status',
-                      style: GoogleFonts.poppins(
-                        fontSize: 20,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.black87,
-                      ),
+                    Row(
+                      children: [
+                        const Icon(Icons.explore, color: Colors.black87, size: 24),
+                        const SizedBox(width: 8),
+                        Text(
+                          'Your Travel Companion',
+                          style: GoogleFonts.poppins(
+                            fontSize: 20,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.black87,
+                          ),
+                        ),
+                      ],
                     ),
-                    const SizedBox(height: 8),
+                    const SizedBox(height: 16),
                     Text(
-                      'Lorem stathy et sed ale sur storm aro Compila and\nMaom shuzz.',
+                      'SafarSathi is your all-in-one travel companion. Track your trips, get real-time updates, and stay safe with our SOS feature.',
                       style: GoogleFonts.poppins(
                         fontSize: 14,
                         color: Colors.grey[600],
@@ -234,7 +244,7 @@ class HomePage extends StatelessWidget {
                       crossAxisCount: 2,
                       crossAxisSpacing: 16,
                       mainAxisSpacing: 16,
-                      childAspectRatio: 1.2,
+                      childAspectRatio: 1,
                       children: [
                         _buildStatusCard(
                           icon: Icons.sos,
@@ -256,8 +266,21 @@ class HomePage extends StatelessWidget {
                           icon: Icons.auto_awesome,
                           title: 'AI Journal',
                           color: const Color(0xFF20B2AA),
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => const ComingSoonScreen()),
+                            );
+                          },
                         ),
                       ],
+                    ),
+                    const SizedBox(height: 20),
+                    ElevatedButton(
+                      onPressed: () {
+                        SampleDataService().addSampleTrip();
+                      },
+                      child: const Text('Add Sample Trip'),
                     ),
                   ],
                 ),

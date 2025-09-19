@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:permission_handler/permission_handler.dart';
 import '../services/trip_service.dart';
 
 class TrackScreen extends StatefulWidget {
@@ -26,15 +27,33 @@ class _TrackScreenState extends State<TrackScreen> {
     super.dispose();
   }
 
-  void toggleTrip() {
-    setState(() {
-      isTripStarted = !isTripStarted;
-      if (isTripStarted) {
-        _tripService.manualStartTrip();
-      } else {
-        _tripService.manualEndTrip();
+  Future<void> _requestLocationPermission() async {
+    var status = await Permission.location.status;
+    if (status.isDenied) {
+      if (await Permission.location.request().isGranted) {
+        // Permission granted
       }
-    });
+    } else if (status.isPermanentlyDenied) {
+      openAppSettings();
+    }
+  }
+
+  void toggleTrip() async {
+    if (!isTripStarted) {
+      await _requestLocationPermission();
+      var status = await Permission.location.status;
+      if (status.isGranted) {
+        setState(() {
+          isTripStarted = true;
+          _tripService.manualStartTrip();
+        });
+      }
+    } else {
+      setState(() {
+        isTripStarted = false;
+        _tripService.manualEndTrip();
+      });
+    }
   }
 
   @override

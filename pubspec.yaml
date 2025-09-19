@@ -22,6 +22,10 @@ dependencies:
   firebase_app_check: ^0.4.0+1
   image_picker: ^1.2.0
   cloud_firestore: ^6.0.1
+  permission_handler: ^12.0.1
+  telephony: ^0.2.0
+  flutter_contacts: ^1.1.9+2
+  location: ^8.0.1
 
 dev_dependencies:
   flutter_test:
