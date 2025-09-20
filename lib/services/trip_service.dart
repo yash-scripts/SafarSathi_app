@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:developer';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:sensors_plus/sensors_plus.dart';
 import 'package:geolocator/geolocator.dart';
@@ -142,7 +143,7 @@ class TripService {
           await _dbHelper.update(trip);
         }
       } catch (e) {
-        // Handle network errors
+        log('Error syncing trip: $e');
       }
     }
   }

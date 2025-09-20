@@ -59,7 +59,12 @@ class _ScanScreenState extends State<ScanScreen> {
   }
 
   Future getImage() async {
-    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+    final pickedFile = await picker.pickImage(
+      source: ImageSource.gallery,
+      maxWidth: 1024, // Downsample image
+      maxHeight: 1024,
+      imageQuality: 80,
+    );
 
     setState(() {
       if (pickedFile != null) {
