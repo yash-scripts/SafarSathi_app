@@ -1,14 +1,15 @@
+
 {
   "project_info": {
-    "project_number": "336784475163",
-    "firebase_url": "https://travelapp-3c6b6-default-rtdb.firebaseio.com",
-    "project_id": "travelapp-3c6b6",
-    "storage_bucket": "travelapp-3c6b6.firebasestorage.app"
+    "project_number": "1234567890",
+    "firebase_url": "https://your-project-name.firebaseio.com",
+    "project_id": "your-project-id",
+    "storage_bucket": "your-project-id.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:336784475163:android:79dd85f1924acb711524be",
+        "mobilesdk_app_id": "1:1234567890:android:abcdef1234567890",
         "android_client_info": {
           "package_name": "com.example.safarsathi_app"
         }
@@ -16,12 +17,19 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyDWSNUQy_RriBI04tozjdxrE6dBeziUn3w"
+          "current_key": "your-api-key"
         }
       ],
       "services": {
+        "analytics_service": {
+          "status": 1
+        },
         "appinvite_service": {
+          "status": 1,
           "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
         }
       }
     }

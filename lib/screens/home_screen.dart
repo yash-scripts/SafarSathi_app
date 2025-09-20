@@ -6,6 +6,7 @@ import 'scan_screen.dart';
 import 'settings_screen.dart';
 import '../services/sample_data_service.dart';
 import 'coming_soon_screen.dart';
+import 'sos_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -250,11 +251,23 @@ class HomePage extends StatelessWidget {
                           icon: Icons.sos,
                           title: 'SOS',
                           color: const Color(0xFF20B2AA),
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => const SosScreen()),
+                            );
+                          },
                         ),
                         _buildStatusCard(
                           icon: Icons.explore,
                           title: 'Travel Itinerary',
                           color: const Color(0xFF20B2AA),
+                           onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => const ComingSoonScreen()),
+                            );
+                          },
                         ),
                         _buildStatusCard(
                           icon: Icons.track_changes,

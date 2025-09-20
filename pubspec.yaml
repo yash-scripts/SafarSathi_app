@@ -7,29 +7,31 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  cupertino_icons: ^1.0.2
-  google_fonts: ^6.1.0
-  font_awesome_flutter: ^10.6.0
-  sensors_plus: ^7.0.0
-  geolocator: ^14.0.0
-  sqflite: ^2.3.2
-  path_provider: ^2.1.2
-  connectivity_plus: ^7.0.0
-  http: ^1.5.0
-  firebase_core: ^4.1.0
-  firebase_auth: ^6.0.2
-  path: ^1.8.3
-  firebase_app_check: ^0.4.0+1
-  image_picker: ^1.2.0
-  cloud_firestore: ^6.0.1
-  permission_handler: ^12.0.1
-  telephony: ^0.2.0
-  flutter_contacts: ^1.1.9+2
-  location: ^8.0.1
+  cupertino_icons: any
+  google_fonts: any
+  font_awesome_flutter: any
+  sensors_plus: any
+  geolocator: any
+  sqflite: any
+  path_provider: any
+  connectivity_plus: any
+  http: any
+  firebase_core: any
+  firebase_auth: any
+  path: any
+  firebase_app_check: any
+  image_picker: any
+  cloud_firestore: any
+  permission_handler: any
+  flutter_contacts: any
+  location: any
+  provider: any
+  shared_preferences: any
+  url_launcher: any
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: ^6.0.0
+  flutter_lints: any
 flutter:
   uses-material-design: true
