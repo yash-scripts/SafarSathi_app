@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_app_check/firebase_app_check.dart';
-import 'package:safarsathi_app/firebase_options.dart';
+import 'package:safar_sathi/firebase_options.dart';
 import 'screens/login_screen.dart';
 import 'services/trip_service.dart';
 

@@ -23,10 +23,10 @@ class TripService {
   final DatabaseHelper _dbHelper = DatabaseHelper.instance;
   StreamSubscription<UserAccelerometerEvent>? _accelerometerSubscription;
   StreamSubscription<Position>? _positionSubscription;
-  StreamSubscription<List<ConnectivityResult>>? _connectivitySubscription;
+  StreamSubscription<ConnectivityResult>? _connectivitySubscription;
 
   Future<void> start() async {
-    _accelerometerSubscription = userAccelerometerEventStream().listen(_onAccelerometerEvent);
+    _accelerometerSubscription = userAccelerometerEvents.listen(_onAccelerometerEvent);
     _connectivitySubscription = Connectivity().onConnectivityChanged.listen(_onConnectivityChanged);
   }
 
@@ -114,7 +114,7 @@ class TripService {
 
   Future<void> _syncTrips() async {
     final connectivityResult = await Connectivity().checkConnectivity();
-    if (!connectivityResult.any((result) => result != ConnectivityResult.none)) {
+    if (connectivityResult == ConnectivityResult.none) {
       return;
     }
 
@@ -147,8 +147,8 @@ class TripService {
     }
   }
 
-  void _onConnectivityChanged(List<ConnectivityResult> result) {
-    if (result.any((r) => r != ConnectivityResult.none)) {
+  void _onConnectivityChanged(ConnectivityResult result) {
+    if (result != ConnectivityResult.none) {
       _syncTrips();
     }
   }

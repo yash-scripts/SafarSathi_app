@@ -1,5 +1,5 @@
-import 'package:flutter_sms/flutter_sms.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../models/emergency_contact_model.dart';
 import 'emergency_contact_service.dart';
 
@@ -27,9 +27,17 @@ class SosService {
   }
 
   Future<void> _sendSMS(String message, List<String> recipients) async {
-    try {
-      await sendSMS(message: message, recipients: recipients, sendDirect: true);
-    } catch (error) {
+    final Uri smsLaunchUri = Uri(
+      scheme: 'sms',
+      path: recipients.join(','),
+      queryParameters: <String, String>{
+        'body': message,
+      },
+    );
+
+    if (await canLaunchUrl(smsLaunchUri)) {
+      await launchUrl(smsLaunchUri);
+    } else {
       // Handle error
     }
   }
