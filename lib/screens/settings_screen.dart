@@ -192,7 +192,7 @@ class SettingsScreen extends StatelessWidget {
                     ),
                     const SizedBox(width: 12),
                     Text(
-                      'SafarSathi',
+                      'Yatrica',
                       style: GoogleFonts.poppins(
                         color: Colors.white,
                         fontSize: 18,

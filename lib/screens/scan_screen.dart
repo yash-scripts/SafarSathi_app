@@ -1,3 +1,4 @@
+
 import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
@@ -23,6 +24,7 @@ class _ScanScreenState extends State<ScanScreen> {
   File? _image;
   final picker = ImagePicker();
   String _extractedText = 'No text extracted yet.';
+  bool _isSaving = false;
   final OcrService _ocrService = OcrService();
 
   Future<void> _extractText() async {
@@ -44,18 +46,68 @@ class _ScanScreenState extends State<ScanScreen> {
       setState(() {
         _extractedText = data['ParsedResults'][0]['ParsedText'];
       });
-
-      // Save extracted text to Firestore
-      OcrData ocrData = OcrData(
-        extractedText: _extractedText,
-        timestamp: Timestamp.now(),
-      );
-      await _ocrService.addOcrData(ocrData);
     } else {
       setState(() {
         _extractedText = 'Error: ${response.reasonPhrase}';
       });
     }
+  }
+
+  Future<void> _promptAndSaveExtractedText() async {
+    final bool? shouldSave = await showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Save Extracted Text?'),
+          content: SingleChildScrollView(
+            child: Text(_extractedText),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('Cancel'),
+              onPressed: () {
+                Navigator.of(context).pop(false);
+              },
+            ),
+            TextButton(
+              child: const Text('Save'),
+              onPressed: () {
+                Navigator.of(context).pop(true);
+              },
+            ),
+          ],
+        );
+      },
+    );
+
+    if (shouldSave == true) {
+      _saveExtractedText();
+    }
+  }
+
+  Future<void> _saveExtractedText() async {
+    setState(() {
+      _isSaving = true;
+    });
+
+    final ocrData = OcrData(
+      extractedText: _extractedText,
+      timestamp: Timestamp.now(),
+    );
+    await _ocrService.addOcrData(ocrData);
+
+    setState(() {
+      _isSaving = false;
+    });
+
+    if (!mounted) return;
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Extracted text saved locally!'),
+        backgroundColor: Colors.green,
+      ),
+    );
   }
 
   Future getImage() async {
@@ -73,6 +125,9 @@ class _ScanScreenState extends State<ScanScreen> {
 
   @override
   Widget build(BuildContext context) {
+    bool canSave = _extractedText != 'No text extracted yet.' &&
+        !_extractedText.startsWith('Error');
+
     return Container(
       decoration: const BoxDecoration(
         gradient: LinearGradient(
@@ -111,7 +166,7 @@ class _ScanScreenState extends State<ScanScreen> {
                     ),
                     const SizedBox(width: 12),
                     Text(
-                      'SafarSathi',
+                      'Yatrica',
                       style: GoogleFonts.poppins(
                         color: Colors.white,
                         fontSize: 18,
@@ -235,11 +290,74 @@ class _ScanScreenState extends State<ScanScreen> {
                       else
                         const Text('No image selected.'),
                       const SizedBox(height: 20),
-                      Text(
-                        _extractedText,
-                        style: GoogleFonts.poppins(
-                          fontSize: 16,
-                          color: Colors.black,
+                      // Extracted Text Box
+                      Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          border: Border.all(color: Colors.grey.shade300),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                             Text(
+                              "Extracted Text",
+                              style: GoogleFonts.poppins(
+                                fontSize: 18,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.black,
+                              ),
+                            ),
+                            const SizedBox(height: 10),
+                            Container(
+                              padding: const EdgeInsets.all(12),
+                              width: double.infinity,
+                              decoration: BoxDecoration(
+                                color: Colors.grey[50],
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Text(
+                                _extractedText,
+                                style: GoogleFonts.poppins(
+                                  fontSize: 16,
+                                  color: Colors.black87,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 20),
+                            if (canSave)
+                              Center(
+                                child: ElevatedButton.icon(
+                                  onPressed:
+                                      _isSaving ? null : _promptAndSaveExtractedText,
+                                  icon: _isSaving
+                                      ? const SizedBox(
+                                          height: 20,
+                                          width: 20,
+                                          child: CircularProgressIndicator(
+                                            strokeWidth: 2,
+                                            valueColor:
+                                                AlwaysStoppedAnimation<Color>(
+                                                    Colors.white),
+                                          ),
+                                        )
+                                      : const Icon(Icons.save),
+                                  label: Text(_isSaving
+                                      ? 'Saving...'
+                                      : 'Save Extracted Text'),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: const Color(0xFF20B2AA),
+                                    foregroundColor: Colors.white,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(25),
+                                    ),
+                                    padding: const EdgeInsets.symmetric(
+                                        vertical: 16,
+                                        horizontal: 32),
+                                  ),
+                                ),
+                              ),
+                          ],
                         ),
                       ),
                     ],

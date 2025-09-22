@@ -1,15 +1,15 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:sensors_plus/sensors_plus.dart';
-import 'package:geolocator/geolocator.dart';
+import 'package:geolocator/geolocator.dart' hide ActivityType;
+import 'package:activity_recognition_flutter/activity_recognition_flutter.dart';
 import '../helpers/database_helper.dart';
 import '../models/trip_model.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:http/http.dart' as http;
 
 class TripService {
-  static const double _movementThreshold = 2.0; // m/s^2
+  static const double _tripEndSpeed = 1.0 / 3.6; // 1 km/hr in m/s
   static const int _tripEndTimeout = 60; // seconds
   static const double _minTripDistance = 100; // meters
 
@@ -20,38 +20,81 @@ class TripService {
   Position? _lastPosition;
   double _totalDistance = 0;
 
-  final DatabaseHelper _dbHelper = DatabaseHelper.instance;
-  StreamSubscription<UserAccelerometerEvent>? _accelerometerSubscription;
+  final DatabaseHelper _dbHelper = DatabaseHelper();
+  final ActivityRecognition _activityRecognition = ActivityRecognition();
   StreamSubscription<Position>? _positionSubscription;
+  StreamSubscription<ActivityEvent>? _activitySubscription;
   StreamSubscription<List<ConnectivityResult>>? _connectivitySubscription;
 
   Future<void> start() async {
-    _accelerometerSubscription = userAccelerometerEventStream().listen(_onAccelerometerEvent);
+    await _dbHelper.init();
+    _activitySubscription = _activityRecognition.activityStream().listen(_onActivityUpdate);
     _connectivitySubscription = Connectivity().onConnectivityChanged.listen(_onConnectivityChanged);
+    _syncTrips(); // Attempt to sync on start
   }
 
   void dispose() {
-    _accelerometerSubscription?.cancel();
+    _activitySubscription?.cancel();
     _positionSubscription?.cancel();
     _connectivitySubscription?.cancel();
     _tripEndTimer?.cancel();
   }
 
-  void _onAccelerometerEvent(UserAccelerometerEvent event) {
+  void _onActivityUpdate(ActivityEvent activity) {
+    if (activity.type == ActivityType.IN_VEHICLE && activity.confidence > 70) {
+      _startGpsTracking();
+    } else if (activity.type == ActivityType.STILL || activity.type == ActivityType.WALKING) {
+      _stopGpsTracking();
+    }
+  }
+
+  void _startGpsTracking() {
+    if (_positionSubscription != null) return;
+    try {
+      _positionSubscription = Geolocator.getPositionStream(
+        locationSettings: const LocationSettings(
+          accuracy: LocationAccuracy.high,
+          distanceFilter: 10,
+        ),
+      ).listen(_onPositionUpdate);
+    } catch (e) {
+      // Handle location permission denied or other errors
+    }
+  }
+
+  void _stopGpsTracking() {
+    _positionSubscription?.cancel();
+    _positionSubscription = null;
+  }
+
+  void _onPositionUpdate(Position position) {
     if (_isManualTrip) return;
 
-    final double magnitude = (event.x * event.x + event.y * event.y + event.z * event.z).abs();
-    if (magnitude > _movementThreshold && !_isMoving) {
+    final speed = position.speed;
+
+    if (speed > _tripEndSpeed && !_isMoving) {
       _startTrip();
-    } else if (magnitude <= _movementThreshold && _isMoving) {
+    } else if (speed < _tripEndSpeed && _isMoving) {
       _resetTripEndTimer();
+    }
+
+    if (_isMoving) {
+      if (_lastPosition != null) {
+        _totalDistance += Geolocator.distanceBetween(
+          _lastPosition!.latitude,
+          _lastPosition!.longitude,
+          position.latitude,
+          position.longitude,
+        );
+      }
+      _lastPosition = position;
     }
   }
 
   Future<void> manualStartTrip() async {
     if (_isMoving) return;
     _isManualTrip = true;
-    _accelerometerSubscription?.pause();
+    _startGpsTracking();
     _startTrip();
   }
 
@@ -60,26 +103,24 @@ class TripService {
     _tripEndTimer?.cancel();
     await _endTrip();
     _isManualTrip = false;
-    _accelerometerSubscription?.resume();
+    _stopGpsTracking();
+  }
+
+  Future<void> addManualTrip(DateTime startTime, DateTime endTime, double distance, double avgSpeed) async {
+    final trip = Trip(
+      startTime: startTime,
+      endTime: endTime,
+      distance: distance,
+      avgSpeed: avgSpeed,
+    );
+    await _dbHelper.addTrip(trip);
+    _syncTrips();
   }
 
   void _startTrip() {
     _isMoving = true;
     _tripStartTime = DateTime.now();
     _totalDistance = 0;
-    _positionSubscription = Geolocator.getPositionStream().listen(_onPositionUpdate);
-  }
-
-  void _onPositionUpdate(Position position) {
-    if (_lastPosition != null) {
-      _totalDistance += Geolocator.distanceBetween(
-        _lastPosition!.latitude,
-        _lastPosition!.longitude,
-        position.latitude,
-        position.longitude,
-      );
-    }
-    _lastPosition = position;
   }
 
   void _resetTripEndTimer() {
@@ -88,8 +129,7 @@ class TripService {
   }
 
   Future<void> _endTrip() async {
-    _isMoving = false;
-    _positionSubscription?.cancel();
+    if (!_isMoving) return;
 
     if (_tripStartTime != null && _totalDistance > _minTripDistance) {
       final endTime = DateTime.now();
@@ -100,13 +140,14 @@ class TripService {
         startTime: _tripStartTime!,
         endTime: endTime,
         distance: _totalDistance,
-        avgSpeed: avgSpeed.toDouble(), // Corrected type
+        avgSpeed: avgSpeed.toDouble(),
       );
 
-      await _dbHelper.insert(trip);
+      await _dbHelper.addTrip(trip);
       _syncTrips();
     }
 
+    _isMoving = false;
     _tripStartTime = null;
     _lastPosition = null;
     _totalDistance = 0;
@@ -119,12 +160,13 @@ class TripService {
     }
 
     final user = FirebaseAuth.instance.currentUser;
-    if (user == null) return; // Don't sync if user is not logged in
+    if (user == null) return;
 
-    final unsyncedTrips = await _dbHelper.getUnsyncedTrips();
+    final allTrips = await _dbHelper.getTrips();
+    final unsyncedTrips = allTrips.where((trip) => !trip.isSynced).toList();
+
     for (final trip in unsyncedTrips) {
       try {
-        // The URL now includes the user's unique ID
         final url = 'https://travelapp-3c6b6-default-rtdb.firebaseio.com/trips/${user.uid}.json';
         final response = await http.post(
           Uri.parse(url),
@@ -139,7 +181,7 @@ class TripService {
 
         if (response.statusCode == 200) {
           trip.isSynced = true;
-          await _dbHelper.update(trip);
+          await _dbHelper.updateTrip(trip);
         }
       } catch (e) {
         // Handle network errors

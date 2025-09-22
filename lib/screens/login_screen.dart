@@ -96,7 +96,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      'SafarSathi',
+                      'Yatrica',
                       style: GoogleFonts.poppins(
                         color: Colors.white,
                         fontSize: 18,
@@ -171,7 +171,7 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
               const SizedBox(height: 48),
               Text(
-                'Welcome to SafarSathi',
+                'Welcome to Yatrica',
                 textAlign: TextAlign.center,
                 style: GoogleFonts.poppins(
                   fontSize: 24,

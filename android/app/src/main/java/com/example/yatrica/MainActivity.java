@@ -1,4 +1,4 @@
-package com.example.safarsathi_app;
+package com.example.yatrica;
 
 import io.flutter.embedding.android.FlutterActivity;
 

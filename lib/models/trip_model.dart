@@ -1,10 +1,25 @@
+import 'package:hive/hive.dart';
 
-class Trip {
+part 'trip_model.g.dart';
+
+@HiveType(typeId: 0)
+class Trip extends HiveObject {
+  @HiveField(0)
   final int? id;
+
+  @HiveField(1)
   final DateTime startTime;
+
+  @HiveField(2)
   final DateTime endTime;
+
+  @HiveField(3)
   final double distance; // in meters
+
+  @HiveField(4)
   final double avgSpeed; // in m/s
+
+  @HiveField(5)
   bool isSynced;
 
   Trip({
