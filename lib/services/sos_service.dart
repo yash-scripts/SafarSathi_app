@@ -11,7 +11,6 @@ class SosService {
     List<EmergencyContact> emergencyContacts =
         await _emergencyContactService.getEmergencyContacts();
     if (emergencyContacts.isEmpty) {
-      print('No emergency contacts found.');
       return;
     }
 
@@ -23,16 +22,15 @@ class SosService {
           emergencyContacts.map((contact) => contact.phone).toList();
       await _sendSMS(message, recipients);
     } catch (e) {
-      print('Error sending SOS message: $e');
+      // Handle error
     }
   }
 
   Future<void> _sendSMS(String message, List<String> recipients) async {
     try {
-      String result = await sendSMS(message: message, recipients: recipients, sendDirect: true);
-      print(result);
+      await sendSMS(message: message, recipients: recipients, sendDirect: true);
     } catch (error) {
-      print(error.toString());
+      // Handle error
     }
   }
 

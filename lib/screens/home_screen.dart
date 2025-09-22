@@ -1,12 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:safar_sathi/services/sos_service.dart';
-import 'track_screen.dart';
-import 'journal_screen.dart';
-import 'scan_screen.dart';
-import 'settings_screen.dart';
-import '../services/sample_data_service.dart';
-import 'coming_soon_screen.dart';
+import '../services/sos_service.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -16,292 +10,55 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  int _currentIndex = 0;
-  late final List<Widget> _pages;
   final SosService _sosService = SosService();
-
-  @override
-  void initState() {
-    super.initState();
-    _pages = [
-      HomePage(
-        onNavigate: (index) => setState(() => _currentIndex = index),
-        onSosPressed: () {
-          _sosService.sendSms();
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('SOS message sent!'),
-            ),
-          );
-        },
-      ),
-      const TrackScreen(),
-      const ScanScreen(),
-      const JournalScreen(),
-      const SettingsScreen(),
-    ];
-  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: _pages[_currentIndex],
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _currentIndex,
-        onTap: (index) => setState(() => _currentIndex = index),
-        type: BottomNavigationBarType.fixed,
-        selectedItemColor: const Color(0xFF20B2AA),
-        unselectedItemColor: Colors.grey,
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home_outlined),
-            activeIcon: Icon(Icons.home),
-            label: 'Home',
+      appBar: AppBar(
+        title: Text(
+          'SafarSathi',
+          style: GoogleFonts.poppins(
+            fontWeight: FontWeight.bold,
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.track_changes_outlined),
-            activeIcon: Icon(Icons.track_changes),
-            label: 'Track',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.qr_code_scanner_outlined),
-            activeIcon: Icon(Icons.qr_code_scanner),
-            label: 'Scan',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.book_outlined),
-            activeIcon: Icon(Icons.book),
-            label: 'Journal',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.settings_outlined),
-            activeIcon: Icon(Icons.settings),
-            label: 'Settings',
+        ),
+        actions: [
+          IconButton(
+            onPressed: () {},
+            icon: const Icon(Icons.notifications_outlined),
           ),
         ],
       ),
-    );
-  }
-}
-
-class HomePage extends StatelessWidget {
-  final void Function(int) onNavigate;
-  final VoidCallback onSosPressed;
-  const HomePage({super.key, required this.onNavigate, required this.onSosPressed});
-
-  Widget _buildStatusCard({
-    required IconData icon,
-    required String title,
-    required Color color,
-    VoidCallback? onTap,
-  }) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(16),
-      child: Container(
-        padding: const EdgeInsets.all(10),
-        decoration: BoxDecoration(
-          color: color,
-          borderRadius: BorderRadius.circular(16),
-        ),
+      body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              icon,
-              color: Colors.white,
-              size: 40,
-            ),
-            const SizedBox(height: 12),
-            FittedBox(
-              child: Text(
-                title,
-                style: GoogleFonts.poppins(
-                  color: Colors.white,
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                ),
-                textAlign: TextAlign.center,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [
-            Color(0xFF20B2AA), // Turquoise
-            Color(0xFF40E0D0), // Light Turquoise
-          ],
-        ),
-      ),
-      child: SafeArea(
-        child: SingleChildScrollView(
-          child: Column(
-            children: [
-              // Header
-              Padding(
-                padding: const EdgeInsets.all(20.0),
-                child: Row(
-                  children: [
-                    Container(
-                      width: 50,
-                      height: 50,
-                      decoration: const BoxDecoration(
-                        color: Colors.orange,
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(
-                        Icons.person,
-                        color: Colors.white,
-                        size: 30,
-                      ),
-                    ),
-                    const SizedBox(width: 16),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'യയ്യേതത്',
-                          style: GoogleFonts.notoSans(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                          ),
-                        ),
-                        Text(
-                          'SafarSathi',
-                          style: GoogleFonts.poppins(
-                            fontSize: 16,
-                            color: Colors.white70,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-              // Search Bar
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(25),
-                  ),
-                  child: Row(
-                    children: [
-                      const Icon(Icons.search, color: Colors.grey),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Text(
-                          'Search',
-                          style: GoogleFonts.poppins(
-                            color: Colors.grey,
-                            fontSize: 16,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              const SizedBox(height: 30),
-              // Main Content Card
-              Container(
-                margin: const EdgeInsets.symmetric(horizontal: 20),
-                padding: const EdgeInsets.all(20),
+            GestureDetector(
+              onTap: _sosService.sendSms,
+              child: Container(
+                padding: const EdgeInsets.all(40),
                 decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        const Icon(Icons.explore, color: Colors.black87, size: 24),
-                        const SizedBox(width: 8),
-                        Text(
-                          'Your Travel Companion',
-                          style: GoogleFonts.poppins(
-                            fontSize: 20,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.black87,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 16),
-                    Text(
-                      'SafarSathi is your all-in-one travel companion. Track your trips, get real-time updates, and stay safe with our SOS feature.',
-                      style: GoogleFonts.poppins(
-                        fontSize: 14,
-                        color: Colors.grey[600],
-                      ),
-                    ),
-                    const SizedBox(height: 30),
-                    // Grid of Cards
-                    GridView.count(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      crossAxisCount: 2,
-                      crossAxisSpacing: 16,
-                      mainAxisSpacing: 16,
-                      childAspectRatio: 1,
-                      children: [
-                        _buildStatusCard(
-                          icon: Icons.sos,
-                          title: 'SOS',
-                          color: const Color(0xFF20B2AA),
-                          onTap: onSosPressed,
-                        ),
-                        _buildStatusCard(
-                          icon: Icons.explore,
-                          title: 'Travel Itinerary',
-                          color: const Color(0xFF20B2AA),
-                        ),
-                        _buildStatusCard(
-                          icon: Icons.track_changes,
-                          title: 'Trip Tracking',
-                          color: const Color(0xFF20B2AA),
-                          onTap: () => onNavigate(1),
-                        ),
-                        _buildStatusCard(
-                          icon: Icons.auto_awesome,
-                          title: 'AI Journal',
-                          color: const Color(0xFF20B2AA),
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(builder: (context) => const ComingSoonScreen()),
-                            );
-                          },
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 20),
-                    ElevatedButton(
-                      onPressed: () {
-                        SampleDataService().addSampleTrip();
-                      },
-                      child: const Text('Add Sample Trip'),
+                  color: Colors.red,
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.red.withAlpha(128),
+                      spreadRadius: 10,
+                      blurRadius: 20,
                     ),
                   ],
                 ),
+                child: const Text(
+                  'SOS',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 40,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
               ),
-              const SizedBox(height: 100), // Space for bottom navigation
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

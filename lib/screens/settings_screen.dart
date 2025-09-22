@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../screens/login_screen.dart';
+import 'emergency_contacts_screen.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
@@ -10,38 +11,42 @@ class SettingsScreen extends StatelessWidget {
     required String title,
     required Color iconColor,
     bool isLast = false,
+    VoidCallback? onTap,
   }) {
-    return Column(
-      children: [
-        Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: iconColor.withAlpha(25), // Replaced withOpacity
-                borderRadius: BorderRadius.circular(8),
+    return InkWell(
+      onTap: onTap,
+      child: Column(
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: iconColor.withAlpha(25), // Replaced withOpacity
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Icon(icon, color: iconColor, size: 20),
               ),
-              child: Icon(icon, color: iconColor, size: 20),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Text(
-                title,
-                style: GoogleFonts.poppins(
-                  fontSize: 16,
-                  color: Colors.black,
+              const SizedBox(width: 16),
+              Expanded(
+                child: Text(
+                  title,
+                  style: GoogleFonts.poppins(
+                    fontSize: 16,
+                    color: Colors.black,
+                  ),
                 ),
               ),
-            ),
-            const Icon(Icons.chevron_right, color: Colors.grey),
+              const Icon(Icons.chevron_right, color: Colors.grey),
+            ],
+          ),
+          if (!isLast) ...[
+            const SizedBox(height: 16),
+            Divider(color: Colors.grey[200], height: 1),
+            const SizedBox(height: 16),
           ],
-        ),
-        if (!isLast) ...[
-          const SizedBox(height: 16),
-          Divider(color: Colors.grey[200], height: 1),
-          const SizedBox(height: 16),
         ],
-      ],
+      ),
     );
   }
 
@@ -245,9 +250,9 @@ class SettingsScreen extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
+                      const Text(
                         'Account',
-                        style: GoogleFonts.poppins(
+                        style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.w600,
                           color: Colors.black,
@@ -258,6 +263,19 @@ class SettingsScreen extends StatelessWidget {
                         icon: Icons.person_outline,
                         title: 'Edit Profile',
                         iconColor: const Color(0xFF20B2AA),
+                      ),
+                      _buildSettingItem(
+                        icon: Icons.contact_emergency_outlined,
+                        title: 'Emergency Contacts',
+                        iconColor: const Color(0xFF20B2AA),
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const EmergencyContactsScreen(),
+                            ),
+                          );
+                        },
                       ),
                       _buildSettingItem(
                         icon: Icons.lock_outline,
@@ -285,9 +303,9 @@ class SettingsScreen extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
+                      const Text(
                         'App Preferences',
-                        style: GoogleFonts.poppins(
+                        style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.w600,
                           color: Colors.black,
@@ -322,9 +340,9 @@ class SettingsScreen extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
+                      const Text(
                         'Support',
-                        style: GoogleFonts.poppins(
+                        style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.w600,
                           color: Colors.black,
