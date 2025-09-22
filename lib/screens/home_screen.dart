@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:safar_sathi/services/sos_service.dart';
 import 'track_screen.dart';
 import 'journal_screen.dart';
 import 'scan_screen.dart';
@@ -17,12 +18,23 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   int _currentIndex = 0;
   late final List<Widget> _pages;
+  final SosService _sosService = SosService();
 
   @override
   void initState() {
     super.initState();
     _pages = [
-      HomePage(onNavigate: (index) => setState(() => _currentIndex = index)),
+      HomePage(
+        onNavigate: (index) => setState(() => _currentIndex = index),
+        onSosPressed: () {
+          _sosService.sendSms();
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('SOS message sent!'),
+            ),
+          );
+        },
+      ),
       const TrackScreen(),
       const ScanScreen(),
       const JournalScreen(),
@@ -74,7 +86,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
 class HomePage extends StatelessWidget {
   final void Function(int) onNavigate;
-  const HomePage({super.key, required this.onNavigate});
+  final VoidCallback onSosPressed;
+  const HomePage({super.key, required this.onNavigate, required this.onSosPressed});
 
   Widget _buildStatusCard({
     required IconData icon,
@@ -250,6 +263,7 @@ class HomePage extends StatelessWidget {
                           icon: Icons.sos,
                           title: 'SOS',
                           color: const Color(0xFF20B2AA),
+                          onTap: onSosPressed,
                         ),
                         _buildStatusCard(
                           icon: Icons.explore,
