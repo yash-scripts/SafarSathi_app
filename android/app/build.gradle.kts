@@ -51,5 +51,5 @@ flutter {
 dependencies {
     implementation(platform("com.google.firebase:firebase-bom:33.1.0"))
     implementation("com.google.firebase:firebase-appcheck-debug")
-    implementation("com.google.firebase:firebase-perf-ktx")
+    implementation("com.google.firebase:firebase-perf-ktx:20.5.2")
 }
