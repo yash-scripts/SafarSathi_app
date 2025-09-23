@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:yatrica/services/sample_data_generator.dart';
 import 'home_screen.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -15,9 +16,14 @@ class _LoginScreenState extends State<LoginScreen> {
   // New method to handle anonymous sign-in
   Future<void> _signInAnonymously() async {
     try {
-      await FirebaseAuth.instance.signInAnonymously();
+      final userCredential = await FirebaseAuth.instance.signInAnonymously();
+      final uid = userCredential.user?.uid;
+      print('Signed in with UID: $uid');
       // After successful sign-in, navigate to the home screen.
       if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Signed in with UID: $uid')),
+      );
       _navigateToHome();
     } catch (e) {
       // Handle errors, e.g., show a snackbar
@@ -206,6 +212,38 @@ class _LoginScreenState extends State<LoginScreen> {
                 icon: Icons.email,
                 text: 'Log in with Email',
                 onPressed: _navigateToHome,
+              ),
+              const SizedBox(height: 16),
+              _buildLoginButton(
+                icon: Icons.data_usage,
+                text: 'Generate Sample Data',
+                onPressed: () async {
+                  await SampleDataGenerator.generateSampleTrips();
+                  final uid = FirebaseAuth.instance.currentUser?.uid;
+                  print('Generated data for UID: $uid');
+                  if (!mounted) return;
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Sample data generated successfully for UID: $uid'),
+                    ),
+                  );
+                },
+              ),
+              const SizedBox(height: 16),
+              _buildLoginButton(
+                icon: Icons.route,
+                text: 'Generate Detailed Trip',
+                onPressed: () async {
+                  await SampleDataGenerator.generateDetailedTrip();
+                  final uid = FirebaseAuth.instance.currentUser?.uid;
+                  print('Generated detailed trip for UID: $uid');
+                  if (!mounted) return;
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Detailed trip data generated successfully for UID: $uid'),
+                    ),
+                  );
+                },
               ),
               const SizedBox(height: 32),
               // Bottom Links
