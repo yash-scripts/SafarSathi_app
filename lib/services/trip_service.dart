@@ -1,8 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:geolocator/geolocator.dart' hide ActivityType;
-import 'package:activity_recognition_flutter/activity_recognition_flutter.dart';
+import 'package:geolocator/geolocator.dart';
 import '../helpers/database_helper.dart';
 import '../models/trip_model.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
@@ -21,31 +20,19 @@ class TripService {
   double _totalDistance = 0;
 
   final DatabaseHelper _dbHelper = DatabaseHelper();
-  final ActivityRecognition _activityRecognition = ActivityRecognition();
   StreamSubscription<Position>? _positionSubscription;
-  StreamSubscription<ActivityEvent>? _activitySubscription;
   StreamSubscription<List<ConnectivityResult>>? _connectivitySubscription;
 
   Future<void> start() async {
     await _dbHelper.init();
-    _activitySubscription = _activityRecognition.activityStream().listen(_onActivityUpdate);
     _connectivitySubscription = Connectivity().onConnectivityChanged.listen(_onConnectivityChanged);
     _syncTrips(); // Attempt to sync on start
   }
 
   void dispose() {
-    _activitySubscription?.cancel();
     _positionSubscription?.cancel();
     _connectivitySubscription?.cancel();
     _tripEndTimer?.cancel();
-  }
-
-  void _onActivityUpdate(ActivityEvent activity) {
-    if (activity.type == ActivityType.IN_VEHICLE && activity.confidence > 70) {
-      _startGpsTracking();
-    } else if (activity.type == ActivityType.STILL || activity.type == ActivityType.WALKING) {
-      _stopGpsTracking();
-    }
   }
 
   void _startGpsTracking() {
